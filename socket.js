@@ -16,7 +16,7 @@ io.on("connection", (socket) => {
   console.log(socket.id);
 
 // send private message to user
-   socket.on("private message", (data) => {
+   socket.on("private message", (data) => { 
      console.log("private message", data);
      socket.broadcast.emit("private message", data);
    }
