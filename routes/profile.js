@@ -17,11 +17,25 @@ router.get("/fetchuserprofile/:id", fetchuser, async (req, res) => {
 });
 
 //Route:1 fetch all user profile using; GET login required
-// this is the code in which m getting all the profiles
+//search filter using skills, rollno, city
 
-router.get("/fetchallprofiles", fetchuser, async (req, res) => {
+router.post("/fetchallprofiles", fetchuser, async (req, res) => {
   try {
-    const profiles = await Profiles.find();
+    const {
+        city,
+        rollno,
+        skills
+      } = req.body;
+    const profiles = await Profiles.find({
+      $and: [
+        { city: { $regex: city, $options: "i" } },
+        { rollno: { $regex: rollno, $options: "i" } },
+        { skills: { $regex: skills, $options: "i" } },
+      ],
+    }).limit(10);
+
+
+
     res.json(profiles);
   } catch (error) {
     console.error(error.message);
