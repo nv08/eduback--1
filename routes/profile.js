@@ -3,6 +3,7 @@ const router = express.Router();
 var fetchuser = require("../Middleware/fetchuser");
 const Profiles = require("../models/Profiles");
 const { body, validationResult } = require("express-validator");
+const Chat = require("../models/Chat");
 
 //Route:0 fetch one user profile using; GET login required
 router.get("/fetchuserprofile/:id", fetchuser, async (req, res) => {
@@ -58,7 +59,7 @@ router.post(
     body("address", "Enter a valid enter a valid address").isLength({ min: 5 }),
     body("skills", "Enter a valid enter a valid skills").isLength({ min: 5 }),
     body("description", "Enter a valid enter a valid description").isLength({
-      min: 100,
+      min: 40,
     }),
   ],
   async (req, res) => {
@@ -95,6 +96,79 @@ router.post(
       const savedProfiles = await profiles.save();
       success = true;
       res.json({ success, savedProfiles });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send(success, "Internel server error");
+    }
+  }
+);
+
+router.post(
+  "/getchat",
+  fetchuser,
+  [],
+  async (req, res) => {
+    let success = false;
+
+    try {
+      const {frUser,toUser} = req.body;
+
+      const chats = await Chat.find({
+        $or: [
+          {frUser, toUser},
+          {toUser: frUser, frUser: toUser}
+        ]}
+      ).sort({date: 1}).limit(50).lean();
+
+      success = true;
+      res.json({ success, chats });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send(success, "Internel server error");
+    }
+  }
+);
+
+router.post(
+  "/getchat",
+  fetchuser,
+  [],
+  async (req, res) => {
+    let success = false;
+
+    try {
+      const {frUser,toUser} = req.body;
+
+      const chats = await Chat.find({
+        $or: [
+          {frUser, toUser},
+          {toUser: frUser, frUser: toUser}
+        ]}
+      ).sort({date: 1}).limit(50).lean();
+
+      success = true;
+      res.json({ success, chats });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send(success, "Internel server error");
+    }
+  }
+);
+
+router.post(
+  "/getstudentchat",
+  fetchuser,
+  [],
+  async (req, res) => {
+    let success = false;
+
+    try {
+      const {toUser} = req.body;
+
+      const chats = await Chat.find({toUser}).distinct('frUser').lean();
+
+      success = true;
+      res.json({ success, chats });
     } catch (error) {
       console.error(error.message);
       res.status(500).send(success, "Internel server error");
