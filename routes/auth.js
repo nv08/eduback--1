@@ -126,7 +126,7 @@ router.post(
       success = true;
       // sending response in json
 
-      res.json({ success, authtoken });
+      res.json({ success, authtoken, data });
     } catch (error) {
       console.error(error.message);
       res.status(500).send("Internel server error");
