@@ -24,7 +24,7 @@ router.post("/createchat", async (req, res) => {
 
 router.get("/:userId", async (req, res) => {
   try {
-    const chats = await Chat.find({
+    const chats = await Chat.distinct({
       members: { $in: [req.params.userId] },
     });
     res.status(200).json(chats);
