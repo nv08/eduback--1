@@ -6,9 +6,11 @@ const Chat = require("../models/Chat");
 //create user chat
 
 router.post("/createchat", async (req, res) => {
-  const { senderId, receiverId } = req.body;
+  const { senderDetails, receiverDetails } = req.body;
   const newChat = new Chat({
-    members: [senderId, receiverId],
+    members: [senderDetails.id, receiverDetails.id],
+    senderDetails: senderDetails,
+    receiverDetails: receiverDetails
   });
 
   try {
@@ -24,7 +26,7 @@ router.post("/createchat", async (req, res) => {
 
 router.get("/:userId", async (req, res) => {
   try {
-    const chats = await Chat.distinct({
+    const chats = await Chat.find({
       members: { $in: [req.params.userId] },
     });
     res.status(200).json(chats);
