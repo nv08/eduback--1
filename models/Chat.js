@@ -5,6 +5,14 @@ const ChatSchema = new Schema(
     members: {
       type: Array,
     },
+    senderDetails: {
+      id: String,
+      name: String,
+    },
+    receiverDetails: {
+      id: String,
+      name: String,
+    }
   },
   {
     timestamps: true,
