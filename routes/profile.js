@@ -241,7 +241,7 @@ router.post("/updateLocation", fetchuser, async (req, res) => {
     const { longitude, latitude } = req.body;
     const userId = req.user.id;
     console.log(userId, longitude, latitude);
-    const filter = { _id: userId };
+    const filter = { user: userId };
     const updateValue = { location: { type: 'Point', coordinates: [longitude, latitude]} };
     const profiles = await Profiles.findOneAndUpdate( filter, updateValue );
     console.log(profiles, 'here i come');
