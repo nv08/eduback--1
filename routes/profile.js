@@ -236,15 +236,14 @@ router.post("/getNearbyProfiles", fetchuser, async (req, res) => {
   }
 });
 
+// updating location of the profile if exist
 router.post("/updateLocation", fetchuser, async (req, res) => {
   try {
     const { longitude, latitude } = req.body;
     const userId = req.user.id;
-    console.log(userId, longitude, latitude);
     const filter = { user: userId };
     const updateValue = { location: { type: 'Point', coordinates: [longitude, latitude]} };
     const profiles = await Profiles.findOneAndUpdate( filter, updateValue );
-    console.log(profiles, 'here i come');
     res.send(profiles);
   } catch (error) {
     console.error(error.message);
