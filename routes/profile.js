@@ -236,4 +236,18 @@ router.post("/getNearbyProfiles", fetchuser, async (req, res) => {
   }
 });
 
+router.post("/updateLocation", fetchuser, async (req, res) => {
+  try {
+    const { longitude, latitude } = req.body;
+    const userId = req.user.id;
+    const filter = { _id: userId };
+    const updateValue = { location: { type: 'Point', coordinates: [longitude, latitude]} };
+    const profiles = await Profiles.findOneAndUpdate( filter, updateValue );
+    res.send(profiles);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internel server error");
+  }
+});
+
 module.exports = router;
