@@ -39,11 +39,33 @@ const ProfileSchema = new Schema({
     type: String,
     required: true,
   },
+  comments: [
+    {
+      comment: String,
+      commentBy: String, // name of teacher who commented
+      time: {
+        type: Date,
+        default: Date.now,
+      },
+    },
+  ],
+  location: {
+    type: {
+      type: String,
+      default: "Point",
+    },
+    coordinates: {
+      type: [Number], // structure is [longitude, latitude]
+      default: undefined,
+    },
+  },
 
   Date: {
     type: Date,
     default: Date.now,
   },
 });
+
+ProfileSchema.index({ location: "2dsphere" });
 
 module.exports = mongoose.model("Profile", ProfileSchema);

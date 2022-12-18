@@ -5,6 +5,8 @@ const Profiles = require("../models/Profiles");
 const { body, validationResult } = require("express-validator");
 const Chat = require("../models/Chat");
 
+const RADIUS_DISTANCE = 10000; //distance in meters (m) --> 10km radius
+
 //Route:0 fetch one user profile using; GET login required
 router.get("/fetchuserprofile/:id", fetchuser, async (req, res) => {
   try {
@@ -75,7 +77,16 @@ router.post(
         address,
         skills,
         description,
+        location
       } = req.body;
+
+      let geoLocation = undefined;
+      if(location){
+        const longitude = Number(location[0]);
+        const latitude = Number(location[1]);
+        geoLocation = { type: 'Point', coordinates: [longitude, latitude] };
+      }
+
       const errors = validationResult(req);
       if (!errors.isEmpty()) {
         return res.status(400).json({ errors: errors.array() });
@@ -90,7 +101,7 @@ router.post(
         address,
         skills,
         description,
-
+        location: geoLocation,
         user: req.user.id,
       });
       const savedProfiles = await profiles.save();
@@ -175,5 +186,54 @@ router.post(
     }
   }
 );
+
+router.post(
+  "/addComment",
+  fetchuser,
+  async (req, res) => {
+    let success = false;
+    try {
+      const { id, comment, commentBy } = req.body;
+      const filter = { _id: id };
+      const updateValue = {
+        comment: comment,
+        commentBy: commentBy,
+      };
+
+      const updatedProfile = await Profiles.findOneAndUpdate(filter, { $push: { comments: updateValue }})
+
+      success = true;
+      res.json({ success, updatedProfile });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).send(success, "Internel server error");
+    }
+  }
+);
+
+// get nearby profiles based upon the location coordinates of teacher
+router.post("/getNearbyProfiles", fetchuser, async (req, res) => {
+  try {
+    const { longitude, latitude } = req.body;
+    const aggregationQuery = [
+      {
+        $geoNear: {
+          near: {
+            type: "Point",
+            coordinates: [longitude, latitude],
+          },
+          distanceField: "distance",
+          spherical: true,
+          maxDistance: RADIUS_DISTANCE,
+        },
+      },
+    ];
+    const profiles = await Profiles.aggregate(aggregationQuery)
+    res.send(profiles);
+  } catch (error) {
+    console.error(error.message);
+    res.status(500).send("Internel server error");
+  }
+});
 
 module.exports = router;
